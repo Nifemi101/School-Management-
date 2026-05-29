@@ -252,10 +252,10 @@ export default function AdminDashboard() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
-                <th className="px-5 py-3 text-left">Class Name</th>
-                <th className="px-5 py-3 text-left">Number of Students</th>
-                <th className="px-5 py-3 text-left">Boys</th>
-                <th className="px-5 py-3 text-left">Girls</th>
+                <th className="px-4 sm:px-5 py-3 text-left">Class Name</th>
+                <th className="px-4 sm:px-5 py-3 text-left">Students</th>
+                <th className="px-4 sm:px-5 py-3 text-left hidden sm:table-cell">Boys</th>
+                <th className="px-4 sm:px-5 py-3 text-left hidden sm:table-cell">Girls</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -263,7 +263,7 @@ export default function AdminDashboard() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-5 py-8 text-center text-gray-400"
+                    className="px-4 sm:px-5 py-8 text-center text-gray-400"
                   >
                     No classes found. Add classes to see statistics here.
                   </td>
@@ -271,20 +271,20 @@ export default function AdminDashboard() {
               ) : (
                 classStats.map((cls, i) => (
                   <tr key={i} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 font-medium text-gray-800">
+                    <td className="px-4 sm:px-5 py-3 font-medium text-gray-800">
                       {cls.name}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-4 sm:px-5 py-3">
                       <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                        {cls.total} students
+                        {cls.total} <span className="hidden xs:inline">students</span>
                       </span>
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-4 sm:px-5 py-3 hidden sm:table-cell">
                       <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-xs font-medium">
                         {cls.boys}
                       </span>
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-4 sm:px-5 py-3 hidden sm:table-cell">
                       <span className="bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full text-xs font-medium">
                         {cls.girls}
                       </span>

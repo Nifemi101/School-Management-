@@ -112,7 +112,7 @@ export default function TeacherForgotPassword() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
 
             {/* Teacher ID */}

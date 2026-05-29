@@ -380,9 +380,9 @@ export default function TeacherDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-gray-400 uppercase text-xs">
                 <tr>
-                  <th className="px-5 py-3 text-left font-medium">Class</th>
-                  <th className="px-5 py-3 text-left font-medium">Subject</th>
-                  <th className="px-5 py-3 text-left font-medium">Action</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium">Class</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium">Subject</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -406,30 +406,31 @@ export default function TeacherDashboard() {
                       key={i}
                       className="hover:bg-gray-50 transition-colors group"
                     >
-                      <td className="px-5 py-3.5">
-                        <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-lg">
+                      <td className="px-4 sm:px-5 py-3.5">
+                        <span className="bg-gray-100 text-gray-700 text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg truncate inline-block max-w-[80px] sm:max-w-none">
                           {(subject.classes as { name: string } | null)?.name ||
-                            "All classes"}
+                            "All"}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 sm:px-5 py-3.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <div className="w-7 h-7 bg-blue-100 rounded-lg hidden xs:flex items-center justify-center shrink-0">
                             <BookOpen size={13} className="text-blue-600" />
                           </div>
-                          <span className="font-medium text-gray-800">
+                          <span className="font-medium text-gray-800 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">
                             {subject.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 sm:px-5 py-3.5">
                         <button
                           onClick={() => router.push("/teacher/results")}
-                          className="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
+                          className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1.5 sm:px-3 rounded-lg text-[10px] sm:text-xs font-medium hover:bg-blue-700 transition-colors"
                         >
-                          <ClipboardList size={12} />
-                          Enter Results
-                          <ChevronRight size={12} />
+                          <ClipboardList size={12} className="hidden xs:inline" />
+                          <span className="xs:hidden">Enter</span>
+                          <span className="hidden xs:inline">Enter Results</span>
+                          <ChevronRight size={12} className="hidden sm:inline" />
                         </button>
                       </td>
                     </tr>

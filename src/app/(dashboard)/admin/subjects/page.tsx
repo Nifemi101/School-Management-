@@ -364,10 +364,10 @@ export default function SubjectsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
-                <th className="px-5 py-3 text-left">Subject Name</th>
-                <th className="px-5 py-3 text-left">Class</th>
-                <th className="px-5 py-3 text-left">Assigned Teacher</th>
-                <th className="px-5 py-3 text-left">Action</th>
+                <th className="px-4 sm:px-5 py-3 text-left">Subject</th>
+                <th className="px-4 sm:px-5 py-3 text-left">Class</th>
+                <th className="px-4 sm:px-5 py-3 text-left hidden sm:table-cell">Assigned Teacher</th>
+                <th className="px-4 sm:px-5 py-3 text-left">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -390,37 +390,39 @@ export default function SubjectsPage() {
                       key={subject.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-5 py-3 font-medium text-gray-800 flex items-center gap-2">
-                        <BookOpen size={15} className="text-blue-500" />
-                        {subject.name}
+                      <td className="px-4 sm:px-5 py-3 font-medium text-gray-800">
+                        <div className="flex items-center gap-2">
+                          <BookOpen size={14} className="text-blue-500 shrink-0" />
+                          <span className="truncate max-w-[120px] sm:max-w-none">{subject.name}</span>
+                        </div>
                       </td>
-                      <td className="px-5 py-3 text-gray-600">
+                      <td className="px-4 sm:px-5 py-3 text-gray-600">
                         {(subject.classes as any)?.name || (
-                          <span className="text-gray-400 italic">
-                            All classes
+                          <span className="text-gray-400 italic text-xs">
+                            All
                           </span>
                         )}
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="px-4 sm:px-5 py-3 hidden sm:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {teachers.length > 0 ? (
                             teachers.map((ts: any, i: number) => (
                               <span
                                 key={i}
-                                className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium"
+                                className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-medium"
                               >
                                 {ts.pre_registered_teachers?.first_name}{" "}
                                 {ts.pre_registered_teachers?.last_name}
                               </span>
                             ))
                           ) : (
-                            <span className="text-gray-400 italic text-xs">
-                              No teacher assigned
+                            <span className="text-gray-400 italic text-[10px]">
+                              None
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="px-4 sm:px-5 py-3">
                         <button
                           onClick={() =>
                             setConfirmSubject({
@@ -428,7 +430,7 @@ export default function SubjectsPage() {
                               name: subject.name,
                             })
                           }
-                          className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 size={15} />
                         </button>

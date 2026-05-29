@@ -408,10 +408,10 @@ export default function StudentDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-gray-400 uppercase text-xs">
                 <tr>
-                  <th className="px-5 py-3 text-left font-medium">Subject</th>
-                  <th className="px-5 py-3 text-left font-medium">Score</th>
-                  <th className="px-5 py-3 text-left font-medium">Grade</th>
-                  <th className="px-5 py-3 text-left font-medium">Term</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium">Subject</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium">Score</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium">Grade</th>
+                  <th className="px-4 sm:px-5 py-3 text-left font-medium hidden sm:table-cell">Term</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -434,18 +434,18 @@ export default function StudentDashboard() {
                       key={result.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-5 py-3 font-medium text-gray-800">
+                      <td className="px-4 sm:px-5 py-3 font-medium text-gray-800 text-xs sm:text-sm">
                         {(result.subjects as any)?.name}
                       </td>
-                      <td className="px-5 py-3 text-gray-600">
+                      <td className="px-4 sm:px-5 py-3 text-gray-600 text-xs sm:text-sm">
                         {result.score}
                       </td>
-                      <td className="px-5 py-3">
-                        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                      <td className="px-4 sm:px-5 py-3">
+                        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium">
                           {result.grade}
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-gray-500 text-xs">
+                      <td className="px-4 sm:px-5 py-3 text-gray-500 text-[10px] sm:text-xs hidden sm:table-cell">
                         {result.term}
                       </td>
                     </tr>
