@@ -79,7 +79,7 @@ export default function TeacherLoginPage() {
       return;
     }
 
-    router.push("/teacher");
+    window.location.href = "/teacher";
   };
 
   return (

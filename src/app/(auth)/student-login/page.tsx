@@ -60,25 +60,25 @@ export default function StudentLoginPage() {
 
     if (!result) return;
 
-   const { data: profile } = await supabase
-  .from("profiles")
-  .select("role, is_temp_login")
-  .eq("id", result.user.id)
-  .single()
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, is_temp_login")
+      .eq("id", result.user.id)
+      .single();
 
-if (profile?.role !== "student") {
-  setError("This account is not a student account")
-  await supabase.auth.signOut()
-  setLoading(false)
-  return
-}
+    if (profile?.role !== "student") {
+      setError("This account is not a student account");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
 
-if (profile?.is_temp_login) {
-  router.push("/set-new-password")
-  return
-}
+    if (profile?.is_temp_login) {
+      router.push("/set-new-password");
+      return;
+    }
 
-router.push("/student")
+    window.location.href = "/student";
   };
 
   return (
