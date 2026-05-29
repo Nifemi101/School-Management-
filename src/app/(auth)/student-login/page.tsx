@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { GraduationCap } from "lucide-react";
+import Link from "next/link";
 
 export default function StudentLoginPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function StudentLoginPage() {
         attempts++;
         if (attempts === 2) {
           setError(
-            "Connection failed. Please check your internet and try again."
+            "Connection failed. Please check your internet and try again.",
           );
           setLoading(false);
           return;
@@ -59,20 +60,25 @@ export default function StudentLoginPage() {
 
     if (!result) return;
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", result.user.id)
-      .single();
+   const { data: profile } = await supabase
+  .from("profiles")
+  .select("role, is_temp_login")
+  .eq("id", result.user.id)
+  .single()
 
-    if (profile?.role !== "student") {
-      setError("This account is not a student account");
-      await supabase.auth.signOut();
-      setLoading(false);
-      return;
-    }
+if (profile?.role !== "student") {
+  setError("This account is not a student account")
+  await supabase.auth.signOut()
+  setLoading(false)
+  return
+}
 
-    router.push("/student");
+if (profile?.is_temp_login) {
+  router.push("/set-new-password")
+  return
+}
+
+router.push("/student")
   };
 
   return (
@@ -137,6 +143,15 @@ export default function StudentLoginPage() {
               "Sign In"
             )}
           </button>
+
+          <div className="text-center mt-4">
+            <Link
+              href="/student-forgot-password"
+              className="text-sm text-gray-500 hover:text-blue-600 transition"
+            >
+              Forgot your password?
+            </Link>
+          </div>
 
           <p className="text-center text-sm text-gray-500">
             Don&apos;t have an account?{" "}

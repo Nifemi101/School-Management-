@@ -1,77 +1,86 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { LogIn } from 'lucide-react'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { LogIn } from "lucide-react";
+import Link from "next/link";
 
 export default function TeacherLoginPage() {
-  const router = useRouter()
-  const supabase = createClient()
+  const router = useRouter();
+  const supabase = createClient();
 
-  const [form, setForm] = useState({ teacher_number: '', password: '' })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [form, setForm] = useState({ teacher_number: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-    setError('')
-  }
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const fakeEmail = `${form.teacher_number.toLowerCase()}@teacher.school.edu`
+    const fakeEmail = `${form.teacher_number.toLowerCase()}@teacher.school.edu`;
 
-    let attempts = 0
-    let result = null
+    let attempts = 0;
+    let result = null;
 
     while (attempts < 2) {
       try {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email: fakeEmail,
-          password: form.password,
-        })
+        const { data, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email: fakeEmail,
+            password: form.password,
+          });
 
         if (signInError) {
-          setError('Invalid Teacher ID or password')
-          setLoading(false)
-          return
+          setError("Invalid Teacher ID or password");
+          setLoading(false);
+          return;
         }
 
-        result = data
-        break
+        result = data;
+        break;
       } catch (err) {
-        attempts++
+        attempts++;
         if (attempts === 2) {
-          setError('Connection failed. Please check your internet and try again.')
-          setLoading(false)
-          return
+          setError(
+            "Connection failed. Please check your internet and try again.",
+          );
+          setLoading(false);
+          return;
         }
-        await new Promise((r) => setTimeout(r, 2000))
+        await new Promise((r) => setTimeout(r, 2000));
       }
     }
 
-    if (!result) return
+    if (!result) return;
 
     // Verify role is teacher
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', result.user.id)
-      .single()
+      .from("profiles")
+      .select("role, is_temp_login")
+      .eq("id", result.user.id)
+      .single();
 
-    if (profile?.role !== 'teacher') {
-      setError('This account is not a teacher account')
-      await supabase.auth.signOut()
-      setLoading(false)
-      return
+    if (profile?.role !== "teacher") {
+      setError("This account is not a teacher account");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
     }
 
-    router.push('/teacher')
-  }
+    if (profile?.is_temp_login) {
+      router.push("/set-new-password");
+      return;
+    }
+
+    router.push("/teacher");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -82,7 +91,9 @@ export default function TeacherLoginPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-800">Teacher Login</h1>
-            <p className="text-xs text-gray-500">Sign in with your Teacher ID and password</p>
+            <p className="text-xs text-gray-500">
+              Sign in with your Teacher ID and password
+            </p>
           </div>
         </div>
 
@@ -129,14 +140,24 @@ export default function TeacherLoginPage() {
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Signing in...
               </span>
-            ) : 'Sign In'}
+            ) : (
+              "Sign In"
+            )}
           </button>
+          <div className="text-center mt-4">
+            <Link
+              href="/teacher-forgot-password"
+              className="text-sm text-gray-500 hover:text-green-600 transition"
+            >
+              Forgot your password?
+            </Link>
+          </div>
 
           <p className="text-center text-sm text-gray-500">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <button
               type="button"
-              onClick={() => router.push('/teacher-signup')}
+              onClick={() => router.push("/teacher-signup")}
               className="text-green-600 font-medium hover:underline"
             >
               Sign up
@@ -145,5 +166,5 @@ export default function TeacherLoginPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }
