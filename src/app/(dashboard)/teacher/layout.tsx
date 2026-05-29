@@ -15,7 +15,6 @@ import {
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/teacher' },
   { label: 'Enter Results', icon: ClipboardList, path: '/teacher/results' },
-  { label: 'Take Attendance', icon: UserCheck, path: '/teacher/attendance' },
 ]
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
