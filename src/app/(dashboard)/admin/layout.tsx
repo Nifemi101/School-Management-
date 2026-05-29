@@ -1,43 +1,48 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard,
   GraduationCap,
   School,
-  BookOpen,
   Library,
   LogOut,
   Menu,
   X,
-} from 'lucide-react'
+  KeyRound,
+} from "lucide-react";
 
 const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
-  { label: 'Students', icon: GraduationCap, path: '/admin/students' },
-  { label: 'Teachers', icon: School, path: '/admin/teachers' },
-  { label: 'Subjects', icon: Library, path: '/admin/subjects' },
-]
+  { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
+  { label: "Students", icon: GraduationCap, path: "/admin/students" },
+  { label: "Teachers", icon: School, path: "/admin/teachers" },
+  { label: "Subjects", icon: Library, path: "/admin/subjects" },
+  { label: "Reset Requests", icon: KeyRound, path: "/admin/reset-requests" },
+];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const supabase = createClient()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const supabase = createClient();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/admin-login')
-  }
+    await supabase.auth.signOut();
+    router.push("/admin-login");
+  };
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleNavClick = (path: string) => {
-    router.push(path)
-    setIsSidebarOpen(false)
-  }
+    router.push(path);
+    setIsSidebarOpen(false);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -49,7 +54,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <p className="text-sm font-bold">APEX</p>
         </div>
-        <button onClick={toggleSidebar} className="p-2 hover:bg-white/10 rounded-lg">
+        <button
+          onClick={toggleSidebar}
+          className="p-2 hover:bg-white/10 rounded-lg"
+        >
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -65,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside
         className={`w-64 bg-[#1e2a3b] text-white flex flex-col fixed h-full z-40 transition-transform duration-300 lg:translate-x-0 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="px-5 py-5 border-b border-white/10 hidden lg:block">
@@ -82,24 +90,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <nav className="flex-1 px-3 py-4 space-y-1 mt-16 lg:mt-0">
           {navItems.map((item) => {
-            const Icon = item.icon
+            const Icon = item.icon;
             const isActive =
               pathname === item.path ||
-              (item.path !== '/admin' && pathname.startsWith(item.path))
+              (item.path !== "/admin" && pathname.startsWith(item.path));
             return (
               <button
                 key={item.path}
                 onClick={() => handleNavClick(item.path)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   isActive
-                    ? 'bg-blue-600 text-white font-medium'
-                    : 'text-gray-300 hover:bg-white/10'
+                    ? "bg-blue-600 text-white font-medium"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 <Icon size={18} />
                 <span>{item.label}</span>
               </button>
-            )
+            );
           })}
         </nav>
 
@@ -115,9 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 pt-16 lg:pt-0">
-        {children}
-      </main>
+      <main className="flex-1 lg:ml-64 pt-16 lg:pt-0">{children}</main>
     </div>
-  )
+  );
 }
