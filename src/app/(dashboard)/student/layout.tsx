@@ -17,7 +17,6 @@ const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/student" },
   { label: "My Subjects", icon: BookOpen, path: "/student/subjects" },
   { label: "My Results", icon: ClipboardList, path: "/student/results" },
-  { label: "Materials", icon: FileText, path: "/student/materials" },
 ];
 
 export default function StudentLayout({
