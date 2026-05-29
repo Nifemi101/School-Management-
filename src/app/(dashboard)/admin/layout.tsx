@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   KeyRound,
+  BookOpen
 } from "lucide-react";
 
 const navItems = [
@@ -20,6 +21,7 @@ const navItems = [
   { label: "Teachers", icon: School, path: "/admin/teachers" },
   { label: "Subjects", icon: Library, path: "/admin/subjects" },
   { label: "Reset Requests", icon: KeyRound, path: "/admin/reset-requests" },
+  { label: 'Terms', icon: BookOpen, path: '/admin/terms' }
 ];
 
 export default function AdminLayout({
