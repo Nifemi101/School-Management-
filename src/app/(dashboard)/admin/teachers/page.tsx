@@ -9,12 +9,24 @@ import {
   PlusSquare,
   ArrowLeft,
   School,
-  Filter,
   BookOpen,
   X,
   AlertTriangle,
-  ChevronDown,
+  Plus,
+  Loader2,
 } from "lucide-react";
+import {
+  saveTeacherSubjects,
+  deleteTeacher,
+} from "@/app/actions/adminTeachers";
+
+// ── Types ─────────────────────────────────────────────────────
+interface TeacherAssignment {
+  subject_id: string;
+  subject_name: string;
+  class_id: string;
+  class_name: string;
+}
 
 interface Teacher {
   id: string;
@@ -22,14 +34,20 @@ interface Teacher {
   first_name: string;
   last_name: string;
   is_registered: boolean;
-  subjects?: { id: string; name: string }[];
+  assignments: TeacherAssignment[];
 }
 
 interface Subject {
   id: string;
   name: string;
 }
+interface Class {
+  id: string;
+  name: string;
+}
+type AssignRow = { key: number; subject_id: string; class_id: string };
 
+// ── Confirm Delete Modal ──────────────────────────────────────
 function ConfirmModal({
   teacherNumber,
   onConfirm,
@@ -51,7 +69,7 @@ function ConfirmModal({
           </div>
           <button
             onClick={onCancel}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-lg"
           >
             <X size={16} className="text-gray-500" />
           </button>
@@ -59,22 +77,23 @@ function ConfirmModal({
         <p className="text-sm text-gray-600 mb-1">
           Are you sure you want to delete teacher:
         </p>
-        <p className="text-sm font-semibold text-gray-800 mb-4">
+        <p className="text-sm font-semibold text-gray-800 mb-3">
           {teacherNumber}
         </p>
-        <p className="text-xs text-red-500 mb-6">
-          ⚠️ This action cannot be undone.
-        </p>
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-5">
+          <AlertTriangle size={13} className="text-red-400 shrink-0" />
+          <p className="text-xs text-red-500">This action cannot be undone.</p>
+        </div>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+            className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-600"
           >
             Yes, Delete
           </button>
@@ -84,90 +103,207 @@ function ConfirmModal({
   );
 }
 
+// ── Assign Subjects Modal ─────────────────────────────────────
 function AssignSubjectModal({
   teacher,
   allSubjects,
+  allClasses,
   onClose,
   onSave,
 }: {
   teacher: Teacher;
   allSubjects: Subject[];
+  allClasses: Class[];
   onClose: () => void;
-  onSave: (teacherId: string, subjectIds: string[]) => void;
+  onSave: (
+    teacherId: string,
+    assignments: { subject_id: string; class_id: string }[],
+  ) => Promise<void>;
 }) {
-  const [selected, setSelected] = useState<string[]>(
-    teacher.subjects?.map((s) => s.id) || [],
+  const [rows, setRows] = useState<AssignRow[]>(
+    teacher.assignments.length > 0
+      ? teacher.assignments.map((a, i) => ({
+          key: i,
+          subject_id: a.subject_id,
+          class_id: a.class_id,
+        }))
+      : [{ key: 0, subject_id: "", class_id: "" }],
   );
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [nextKey, setNextKey] = useState(teacher.assignments.length + 1);
 
-  const toggle = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+  const addRow = () => {
+    setRows((prev) => [
+      ...prev,
+      { key: nextKey, subject_id: "", class_id: "" },
+    ]);
+    setNextKey((k) => k + 1);
+  };
+
+  const removeRow = (key: number) => {
+    setRows((prev) => prev.filter((r) => r.key !== key));
+  };
+
+  const updateRow = (
+    key: number,
+    field: "subject_id" | "class_id",
+    value: string,
+  ) => {
+    setRows((prev) =>
+      prev.map((r) => (r.key === key ? { ...r, [field]: value } : r)),
     );
+    setError("");
   };
 
   const handleSave = async () => {
+    // Filter out empty rows
+    const filled = rows.filter((r) => r.subject_id && r.class_id);
+
+    // Validate incomplete rows
+    const hasIncomplete = rows.some(
+      (r) => (r.subject_id && !r.class_id) || (!r.subject_id && r.class_id),
+    );
+    if (hasIncomplete) {
+      setError(
+        "Each assignment must have both a subject and a class selected.",
+      );
+      return;
+    }
+
     setSaving(true);
-    await onSave(teacher.id, selected);
+    await onSave(teacher.id, filled);
     setSaving(false);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="font-semibold text-gray-800">Assign Subjects</h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              {teacher.first_name} {teacher.last_name} ({teacher.teacher_number}
-              )
+              {teacher.first_name} {teacher.last_name} ·{" "}
+              {teacher.teacher_number}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-lg"
           >
             <X size={16} className="text-gray-500" />
           </button>
         </div>
 
-        {allSubjects.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-6">
-            No subjects available. Add subjects first.
+        {/* Column headers */}
+        <div className="grid grid-cols-[1fr_1fr_32px] gap-2 mb-2 px-1">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Subject
           </p>
-        ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto mb-6">
-            {allSubjects.map((subject) => (
-              <label
-                key={subject.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Class
+          </p>
+          <div />
+        </div>
+
+        {/* Assignment rows */}
+        <div className="space-y-2 max-h-64 overflow-y-auto mb-3">
+          {rows.map((row) => (
+            <div
+              key={row.key}
+              className="grid grid-cols-[1fr_1fr_32px] gap-2 items-center"
+            >
+              {/* Subject */}
+              <select
+                value={row.subject_id}
+                onChange={(e) =>
+                  updateRow(row.key, "subject_id", e.target.value)
+                }
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
-                <input
-                  type="checkbox"
-                  checked={selected.includes(subject.id)}
-                  onChange={() => toggle(subject.id)}
-                  className="w-4 h-4 accent-blue-600"
-                />
-                <span className="text-sm text-gray-700">{subject.name}</span>
-              </label>
-            ))}
+                <option value="">Select subject...</option>
+                {allSubjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Class */}
+              <select
+                value={row.class_id}
+                onChange={(e) => updateRow(row.key, "class_id", e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+    focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="">Select class...</option>
+                <option value="general">General (All Classes)</option>
+                {allClasses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Remove */}
+              <button
+                onClick={() => removeRow(row.key)}
+                className="w-8 h-8 flex items-center justify-center text-red-400
+                  hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Add row button */}
+        <button
+          onClick={addRow}
+          className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700
+            font-medium mb-4 transition-colors"
+        >
+          <Plus size={14} />
+          Add Assignment
+        </button>
+
+        {/* Error */}
+        {error && (
+          <div
+            className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-lg
+            px-3 py-2 mb-4 text-sm text-red-600"
+          >
+            <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+            {error}
           </div>
         )}
 
+        {/* Actions */}
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg
+              text-sm font-medium hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm
+              font-medium hover:bg-blue-700 transition-colors disabled:opacity-50
+              flex items-center justify-center gap-2"
           >
-            {saving ? "Saving..." : "Save Subjects"}
+            {saving ? (
+              <>
+                <Loader2 size={14} className="animate-spin" /> Saving...
+              </>
+            ) : (
+              "Save Assignments"
+            )}
           </button>
         </div>
       </div>
@@ -175,12 +311,14 @@ function AssignSubjectModal({
   );
 }
 
+// ── Page ──────────────────────────────────────────────────────
 export default function TeachersPage() {
   const router = useRouter();
   const supabase = createClient();
 
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -196,95 +334,74 @@ export default function TeachersPage() {
     fetchData();
   }, []);
 
- const fetchData = async () => {
-  const { data: teachersData } = await supabase
-    .from('pre_registered_teachers')
-    .select('id, teacher_number, first_name, last_name, is_registered')
-    .order('created_at', { ascending: false })
+  const fetchData = async () => {
+    const [
+      { data: teachersData },
+      { data: subjectsData },
+      { data: classesData },
+      { data: teacherSubjectsData },
+    ] = await Promise.all([
+      supabase
+        .from("pre_registered_teachers")
+        .select("id, teacher_number, first_name, last_name, is_registered")
+        .order("created_at", { ascending: false }),
 
-  const { data: subjectsData } = await supabase
-    .from('subjects')
-    .select('id, name')
-    .order('name')
+      supabase.from("subjects").select("id, name").order("name"),
 
-  const { data: teacherSubjectsData } = await supabase
-    .from('teacher_subjects')
-    .select('teacher_id, subjects(id, name)')
+      supabase.from("classes").select("id, name").order("name"),
 
-  if (teachersData) {
-    const enriched = teachersData.map((t: any) => ({
-      ...t,
-      subjects: teacherSubjectsData
-        ?.filter((ts: any) => ts.teacher_id === t.id)
-        .map((ts: any) => ts.subjects) || [],
-    }))
-    setTeachers(enriched)
-  }
+      supabase
+        .from("teacher_subjects")
+        .select(
+          "teacher_id, subject_id, class_id, subjects(id, name), classes(id, name)",
+        ),
+    ]);
 
-  if (subjectsData) setSubjects(subjectsData)
-  setLoading(false)
-}
+    if (teachersData) {
+      const enriched = teachersData.map((t: any) => ({
+        ...t,
+        assignments: (teacherSubjectsData ?? [])
+          .filter((ts: any) => ts.teacher_id === t.id)
+          .map((ts: any) => ({
+            subject_id: ts.subject_id,
+            subject_name: Array.isArray(ts.subjects)
+              ? ts.subjects[0]?.name
+              : (ts.subjects?.name ?? ""),
+            class_id: ts.class_id,
+            class_name: Array.isArray(ts.classes)
+              ? ts.classes[0]?.name
+              : (ts.classes?.name ?? ""),
+          })),
+      }));
+      setTeachers(enriched);
+    }
+
+    if (subjectsData) setSubjects(subjectsData);
+    if (classesData) setClasses(classesData);
+    setLoading(false);
+  };
+
+  const handleSaveSubjects = async (
+    teacherId: string,
+    assignments: { subject_id: string; class_id: string }[],
+  ) => {
+    const result = await saveTeacherSubjects(teacherId, assignments);
+    if (!result.success) {
+      alert(result.error);
+      return;
+    }
+    await fetchData();
+  };
 
   const handleDeleteConfirmed = async () => {
     if (!confirmTeacher) return;
-    const { id, teacher_number } = confirmTeacher;
-    setDeleting(id);
+    setDeleting(confirmTeacher.id);
     setConfirmTeacher(null);
-
-    await supabase
-      .from("teacher_profiles")
-      .delete()
-      .eq("teacher_number", teacher_number);
-    await supabase.from("teacher_subjects").delete().eq("teacher_id", id);
-    const { error } = await supabase
-      .from("pre_registered_teachers")
-      .delete()
-      .eq("id", id);
-
-    if (!error) setTeachers((prev) => prev.filter((t) => t.id !== id));
+    await deleteTeacher(confirmTeacher.id, confirmTeacher.teacher_number);
+    await fetchData();
     setDeleting(null);
   };
 
- const handleSaveSubjects = async (teacherId: string, subjectIds: string[]) => {
-  // Get the pre_registered_teachers id using teacher_number
-  const teacher = teachers.find(t => t.id === teacherId)
-  if (!teacher) return
-
-  const { data: preTeacher } = await supabase
-    .from('pre_registered_teachers')
-    .select('id')
-    .eq('teacher_number', teacher.teacher_number)
-    .single()
-
-  if (!preTeacher) {
-    alert('Could not find teacher record')
-    return
-  }
-
-  // Delete existing assignments using pre_registered_teachers id
-  await supabase
-    .from('teacher_subjects')
-    .delete()
-    .eq('teacher_id', preTeacher.id)
-
-  // Insert new assignments
-  if (subjectIds.length > 0) {
-    const { error } = await supabase
-      .from('teacher_subjects')
-      .insert(
-        subjectIds.map((subject_id) => ({
-          teacher_id: preTeacher.id,
-          subject_id,
-        }))
-      )
-    if (error) {
-      alert(`Failed to assign subjects: ${error.message}`)
-      return
-    }
-  }
-
-  await fetchData()
-}
   const filtered = teachers.filter(
     (t) =>
       t.teacher_number.toLowerCase().includes(search.toLowerCase()) ||
@@ -317,6 +434,7 @@ export default function TeachersPage() {
         <AssignSubjectModal
           teacher={assigningTeacher}
           allSubjects={subjects}
+          allClasses={classes}
           onClose={() => setAssigningTeacher(null)}
           onSave={handleSaveSubjects}
         />
@@ -343,7 +461,8 @@ export default function TeachersPage() {
         </div>
         <button
           onClick={() => router.push("/admin/add-teacher")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium
+            hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <PlusSquare size={16} />
           Add Teacher
@@ -362,12 +481,13 @@ export default function TeachersPage() {
             placeholder="Search by teacher ID or name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      {/* Teachers Table */}
+      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -375,8 +495,12 @@ export default function TeachersPage() {
               <tr>
                 <th className="px-4 sm:px-5 py-3 text-left">Teacher ID</th>
                 <th className="px-4 sm:px-5 py-3 text-left">Full Name</th>
-                <th className="px-4 sm:px-5 py-3 text-left hidden md:table-cell">Assigned Subjects</th>
-                <th className="px-4 sm:px-5 py-3 text-left hidden sm:table-cell">Status</th>
+                <th className="px-4 sm:px-5 py-3 text-left hidden md:table-cell">
+                  Assignments
+                </th>
+                <th className="px-4 sm:px-5 py-3 text-left hidden sm:table-cell">
+                  Status
+                </th>
                 <th className="px-4 sm:px-5 py-3 text-left">Actions</th>
               </tr>
             </thead>
@@ -389,7 +513,7 @@ export default function TeachersPage() {
                   >
                     {search
                       ? "No teachers match your search."
-                      : 'No teachers added yet. Click "Add Teacher" to get started.'}
+                      : "No teachers added yet."}
                   </td>
                 </tr>
               ) : (
@@ -406,18 +530,24 @@ export default function TeachersPage() {
                     </td>
                     <td className="px-4 sm:px-5 py-3 hidden md:table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {teacher.subjects && teacher.subjects.length > 0 ? (
-                          teacher.subjects.map((s) => (
+                        {teacher.assignments.length > 0 ? (
+                          teacher.assignments.map((a, i) => (
                             <span
-                              key={s.id}
+                              key={i}
                               className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-medium"
                             >
-                              {s.name}
+                              {a.subject_name}
+                              {a.class_name && (
+                                <span className="text-blue-500">
+                                  {" "}
+                                  · {a.class_name}
+                                </span>
+                              )}
                             </span>
                           ))
                         ) : (
                           <span className="text-gray-400 italic text-[10px]">
-                            No subjects assigned
+                            No assignments
                           </span>
                         )}
                       </div>
@@ -437,11 +567,12 @@ export default function TeachersPage() {
                       <div className="flex items-center gap-1 sm:gap-2">
                         <button
                           onClick={() => setAssigningTeacher(teacher)}
-                          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
-                          title="Assign Subjects"
+                          className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs
+                            font-medium text-blue-600 border border-blue-200 rounded-lg
+                            hover:bg-blue-50 transition-colors"
                         >
                           <BookOpen size={12} />
-                          <span className="hidden xs:inline">Assign</span>
+                          Assign
                         </button>
                         <button
                           onClick={() =>
@@ -451,9 +582,14 @@ export default function TeachersPage() {
                             })
                           }
                           disabled={deleting === teacher.id}
-                          className="p-1.5 sm:p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          className="p-1.5 sm:p-2 text-red-400 hover:bg-red-50 rounded-lg
+                            transition-colors disabled:opacity-50"
                         >
-                          <Trash2 size={14} className="sm:w-[15px] sm:h-[15px]" />
+                          {deleting === teacher.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={14} />
+                          )}
                         </button>
                       </div>
                     </td>
