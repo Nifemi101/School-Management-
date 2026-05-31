@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, UserPlus } from 'lucide-react'
+import { ArrowLeft, UserPlus, CheckCircle } from 'lucide-react'
+import { addTeacher } from '@/app/actions/addTeacher'
 
 export default function AddTeacherPage() {
   const router = useRouter()
-  const supabase = createClient()
 
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -29,29 +28,14 @@ export default function AddTeacherPage() {
     setLoading(true)
     setError('')
 
-    // Check if teacher number already exists
-    const { data: existing } = await supabase
-      .from('pre_registered_teachers')
-      .select('id')
-      .eq('teacher_number', form.teacher_number)
-      .single()
+    const result = await addTeacher({
+      teacher_number: form.teacher_number,
+      first_name: form.first_name,
+      last_name: form.last_name,
+    })
 
-    if (existing) {
-      setError('A teacher with this ID already exists.')
-      setLoading(false)
-      return
-    }
-
-    const { error: insertError } = await supabase
-      .from('pre_registered_teachers')
-      .insert({
-        teacher_number: form.teacher_number,
-        first_name: form.first_name,
-        last_name: form.last_name,
-      })
-
-    if (insertError) {
-      setError('Failed to add teacher. Please try again.')
+    if (!result.success) {
+      setError(result.error ?? 'Failed to add teacher. Please try again.')
       setLoading(false)
       return
     }
@@ -68,6 +52,7 @@ export default function AddTeacherPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
       <div className="max-w-xl mx-auto">
+
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button
@@ -85,14 +70,18 @@ export default function AddTeacherPage() {
           </div>
         </div>
 
+        {/* Success banner */}
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-4">
-            ✅ Teacher added successfully! Redirecting...
+          <div className="flex items-center gap-2 bg-green-50 border border-green-200
+            text-green-700 px-4 py-3 rounded-lg text-sm mb-4">
+            <CheckCircle size={16} className="shrink-0" />
+            Teacher added successfully! Redirecting...
           </div>
         )}
 
         <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Teacher ID <span className="text-red-500">*</span>
@@ -104,9 +93,12 @@ export default function AddTeacherPage() {
                 onChange={handleChange}
                 required
                 placeholder="e.g. TCH2024001"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <p className="text-xs text-gray-400 mt-1">This is what the teacher will use to sign up</p>
+              <p className="text-xs text-gray-400 mt-1">
+                This is what the teacher will use to sign up
+              </p>
             </div>
 
             <div>
@@ -120,7 +112,8 @@ export default function AddTeacherPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter first name"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -135,28 +128,34 @@ export default function AddTeacherPage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter last name"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && (
+              <p className="text-red-500 text-sm">{error}</p>
+            )}
 
             <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => router.push('/admin/teachers')}
-                className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg
+                  text-sm font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm
+                  font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 {loading ? 'Adding...' : 'Add Teacher'}
               </button>
             </div>
+
           </form>
         </div>
       </div>
