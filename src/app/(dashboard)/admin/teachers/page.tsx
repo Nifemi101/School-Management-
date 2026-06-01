@@ -125,7 +125,7 @@ function AssignSubjectModal({
       ? teacher.assignments.map((a, i) => ({
           key: i,
           subject_id: a.subject_id,
-          class_id: a.class_id,
+          class_id: a.class_id ?? "general", // ✅ Fix 1: null → 'general'
         }))
       : [{ key: 0, subject_id: "", class_id: "" }],
   );
@@ -157,10 +157,8 @@ function AssignSubjectModal({
   };
 
   const handleSave = async () => {
-    // Filter out empty rows
     const filled = rows.filter((r) => r.subject_id && r.class_id);
 
-    // Validate incomplete rows
     const hasIncomplete = rows.some(
       (r) => (r.subject_id && !r.class_id) || (!r.subject_id && r.class_id),
     );
@@ -180,6 +178,7 @@ function AssignSubjectModal({
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -232,12 +231,14 @@ function AssignSubjectModal({
                 ))}
               </select>
 
-              {/* Class */}
+              {/* Class ✅ Fix 2: null guard on value */}
               <select
-                value={row.class_id}
-                onChange={(e) => updateRow(row.key, "class_id", e.target.value)}
+                value={row.class_id ?? ""}
+                onChange={(e) =>
+                  updateRow(row.key, "class_id", e.target.value)
+                }
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="">Select class...</option>
                 <option value="general">General (All Classes)</option>
@@ -537,10 +538,13 @@ export default function TeachersPage() {
                               className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-medium"
                             >
                               {a.subject_name}
-                              {a.class_name && (
+                              {a.class_name ? (
                                 <span className="text-blue-500">
-                                  {" "}
-                                  · {a.class_name}
+                                  {" "}· {a.class_name}
+                                </span>
+                              ) : (
+                                <span className="text-blue-400">
+                                  {" "}· General
                                 </span>
                               )}
                             </span>
