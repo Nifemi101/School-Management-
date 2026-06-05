@@ -308,11 +308,11 @@ export default function StudentDashboard() {
                     value: student?.guardian_phone || "Not provided",
                   },
                 ].map((row) => (
-                  <div key={row.label} className="flex justify-between py-2.5">
-                    <span className="text-xs text-gray-400 font-medium">
+                  <div key={row.label} className="flex justify-between py-2.5 gap-4">
+                    <span className="text-xs text-gray-400 font-medium shrink-0">
                       {row.label}
                     </span>
-                    <span className="text-xs font-semibold text-gray-700">
+                    <span className="text-xs font-semibold text-gray-700 text-right break-words">
                       {row.value}
                     </span>
                   </div>
@@ -434,7 +434,7 @@ export default function StudentDashboard() {
                       key={result.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 sm:px-5 py-3 font-medium text-gray-800 text-xs sm:text-sm">
+                      <td className="px-4 sm:px-5 py-3 font-medium text-gray-800 text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">
                         {(result.subjects as any)?.name}
                       </td>
                       <td className="px-4 sm:px-5 py-3 text-gray-600 text-xs sm:text-sm">

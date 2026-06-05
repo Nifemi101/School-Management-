@@ -192,7 +192,7 @@ export default function ResetRequestsPage() {
   return (
     <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <KeyRound className="w-5 h-5 text-blue-600" />
@@ -204,8 +204,8 @@ export default function ResetRequestsPage() {
         </div>
         <button
           onClick={fetchRequests}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600
-            border border-gray-200 rounded-lg px-3 py-2 transition hover:border-blue-300"
+          className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-blue-600
+            border border-gray-200 rounded-lg px-3 py-2 transition hover:border-blue-300 w-full sm:w-auto"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Refresh
@@ -229,7 +229,7 @@ export default function ResetRequestsPage() {
       )}
 
       {/* Filter tabs */}
-      <div className="flex flex-wrap gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-fit">
+      <div className="flex flex-wrap gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-full sm:w-fit overflow-x-auto">
         {filterTabs.map((tab) => (
           <button
             key={tab.key}

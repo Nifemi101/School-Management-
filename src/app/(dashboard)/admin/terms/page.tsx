@@ -91,7 +91,7 @@ export default function TermsPage() {
     <div className="p-6 max-w-4xl mx-auto">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-blue-600" />
@@ -103,7 +103,7 @@ export default function TermsPage() {
         </div>
         <button
           onClick={() => setCreateModal(true)}
-          className="flex items-center gap-2 text-sm font-medium text-white px-4 py-2 rounded-lg"
+          className="flex items-center justify-center gap-2 text-sm font-medium text-white px-4 py-2 rounded-lg w-full sm:w-auto"
           style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }}
         >
           <Plus className="w-4 h-4" />

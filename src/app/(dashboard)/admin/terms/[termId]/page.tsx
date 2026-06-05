@@ -188,7 +188,7 @@ export default function TermDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-full sm:w-fit overflow-x-auto">
         {([
           { key: 'progress', label: 'Score Progress', icon: BarChart3 },
           { key: 'remarks', label: 'Student Remarks', icon: MessageSquare },

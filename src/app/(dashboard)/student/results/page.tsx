@@ -255,15 +255,15 @@ export default function StudentResultsPage() {
                 <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                   <tr>
                     <th className="px-5 py-3 text-left">Subject</th>
-                    <th className="px-5 py-3 text-center">
+                    <th className="px-5 py-3 text-center hidden sm:table-cell">
                       1st Test
                       <span className="block normal-case font-normal text-gray-400">/20</span>
                     </th>
-                    <th className="px-5 py-3 text-center">
+                    <th className="px-5 py-3 text-center hidden sm:table-cell">
                       2nd Test
                       <span className="block normal-case font-normal text-gray-400">/20</span>
                     </th>
-                    <th className="px-5 py-3 text-center">
+                    <th className="px-5 py-3 text-center hidden sm:table-cell">
                       Exam
                       <span className="block normal-case font-normal text-gray-400">/60</span>
                     </th>
@@ -282,13 +282,13 @@ export default function StudentResultsPage() {
                         <td className="px-5 py-4 font-medium text-gray-900">
                           {getSubjectName(result.subjects)}
                         </td>
-                        <td className="px-5 py-4 text-center">
+                        <td className="px-5 py-4 text-center hidden sm:table-cell">
                           <ScoreCell value={result.first_test} />
                         </td>
-                        <td className="px-5 py-4 text-center">
+                        <td className="px-5 py-4 text-center hidden sm:table-cell">
                           <ScoreCell value={result.second_test} />
                         </td>
-                        <td className="px-5 py-4 text-center">
+                        <td className="px-5 py-4 text-center hidden sm:table-cell">
                           <ScoreCell value={result.exam} />
                         </td>
                         <td className="px-5 py-4 text-center">

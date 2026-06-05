@@ -297,11 +297,11 @@ export default function TeacherDashboard() {
                   },
                   { label: "Term", value: currentTerm },
                 ].map((row) => (
-                  <div key={row.label} className="flex justify-between py-2.5">
-                    <span className="text-xs text-gray-400 font-medium">
+                  <div key={row.label} className="flex justify-between py-2.5 gap-4">
+                    <span className="text-xs text-gray-400 font-medium shrink-0">
                       {row.label}
                     </span>
-                    <span className="text-xs font-semibold text-gray-700">
+                    <span className="text-xs font-semibold text-gray-700 text-right break-words">
                       {row.value}
                     </span>
                   </div>

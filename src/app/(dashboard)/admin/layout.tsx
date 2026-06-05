@@ -49,7 +49,7 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#1e2a3b] text-white flex items-center justify-between px-4 z-20 shadow-md">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#1e2a3b] text-white flex items-center justify-between px-4 z-50 shadow-md">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
             A

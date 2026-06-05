@@ -208,51 +208,57 @@ function AssignSubjectModal({
         </div>
 
         {/* Assignment rows */}
-        <div className="space-y-2 max-h-64 overflow-y-auto mb-3">
+        <div className="space-y-4 sm:space-y-2 max-h-64 overflow-y-auto mb-3 pr-1">
           {rows.map((row) => (
             <div
               key={row.key}
-              className="grid grid-cols-[1fr_1fr_32px] gap-2 items-center"
+              className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr_32px] gap-2 items-start sm:items-center bg-gray-50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none relative"
             >
-              {/* Subject */}
-              <select
-                value={row.subject_id}
-                onChange={(e) =>
-                  updateRow(row.key, "subject_id", e.target.value)
-                }
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="">Select subject...</option>
-                {allSubjects.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+              <div className="w-full sm:contents grid grid-cols-1 gap-2">
+                <div className="sm:hidden text-[10px] font-semibold text-gray-400 uppercase">Subject</div>
+                {/* Subject */}
+                <select
+                  value={row.subject_id}
+                  onChange={(e) =>
+                    updateRow(row.key, "subject_id", e.target.value)
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="">Select subject...</option>
+                  {allSubjects.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              {/* Class ✅ Fix 2: null guard on value */}
-              <select
-                value={row.class_id ?? ""}
-                onChange={(e) =>
-                  updateRow(row.key, "class_id", e.target.value)
-                }
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="">Select class...</option>
-                <option value="general">General (All Classes)</option>
-                {allClasses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="w-full sm:contents grid grid-cols-1 gap-2">
+                <div className="sm:hidden text-[10px] font-semibold text-gray-400 uppercase">Class</div>
+                {/* Class ✅ Fix 2: null guard on value */}
+                <select
+                  value={row.class_id ?? ""}
+                  onChange={(e) =>
+                    updateRow(row.key, "class_id", e.target.value)
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="">Select class...</option>
+                  <option value="general">General (All Classes)</option>
+                  {allClasses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Remove */}
               <button
                 onClick={() => removeRow(row.key)}
-                className="w-8 h-8 flex items-center justify-center text-red-400
+                className="absolute top-2 right-2 sm:static w-8 h-8 flex items-center justify-center text-red-400
                   hover:bg-red-50 rounded-lg transition-colors"
               >
                 <X size={14} />

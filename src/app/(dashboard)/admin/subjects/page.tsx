@@ -351,9 +351,11 @@ export default function SubjectsPage() {
                         </div>
                       </td>
                       <td className="px-4 sm:px-5 py-3 text-gray-600">
-                        {(subject.classes as any)?.name || (
-                          <span className="text-gray-400 italic text-xs">All</span>
-                        )}
+                        <span className="truncate max-w-[80px] sm:max-w-none inline-block">
+                          {(subject.classes as any)?.name || (
+                            <span className="text-gray-400 italic text-xs">All</span>
+                          )}
+                        </span>
                       </td>
                       <td className="px-4 sm:px-5 py-3 hidden sm:table-cell">
                         <div className="flex flex-wrap gap-1">
